@@ -1,5 +1,7 @@
 package uy.edu.um.doors;
 
+import lombok.Getter;
+import uy.edu.um.doors.entities.Evento;
 import uy.edu.um.doors.entities.Proceso;
 import uy.edu.um.doors.entities.Usuario;
 
@@ -7,136 +9,129 @@ import uy.edu.um.tad.hash.MyHash;
 import uy.edu.um.tad.hash.MyHashImpl;
 import uy.edu.um.tad.heap.MyHeap;
 import uy.edu.um.tad.heap.MyHeapImpl;
+import uy.edu.um.tad.list.MyLinkedListImpl;
+import uy.edu.um.tad.list.MyList;
 import uy.edu.um.tad.queue.MyQueue;
 import uy.edu.um.tad.queue.MyQueueImpl;
 import uy.edu.um.tad.stack.MyStack;
 import uy.edu.um.tad.stack.MyStackImpl;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Array;
 
 public class ProcessManagerImpl implements ProcessManager{
 
     //EL DISEÑO DE LA ESTRUCTURA DE ALMACENAMIENTO DEBE IMPLEMENTARSE EN ESTA CLASE EN RELACIÓN CON LAS ENTIDADES QUE DEFINA
-
-    private MyQueue<Proceso> procesosNuevos;
-    private MyHeap<Proceso> procesosPendientes;
-    private MyStack<Proceso> procesosFinalizados;
-    private MyHash<String, Usuario> usuarios;
+// TODO - no entendí el comentario de arriba :))
+    @Getter
+    private final MyQueue<Proceso> procesosNuevos = new MyQueueImpl<Proceso>();
+    @Getter
+    private final MyHeap<Proceso> procesosPendientes = new MyHeapImpl<Proceso>(false);
+    @Getter
+    private final MyStack<Proceso> procesosFinalizados = new MyStackImpl<Proceso>();
+    @Getter
+    private final MyHash<String, Usuario> usuarios = new MyHashImpl<String,Usuario>();
     //running process
 
-
-    public ProcessManagerImpl(){
-        this.procesosNuevos = new MyQueueImpl<Proceso>();
-        this.procesosPendientes = new MyHeapImpl<Proceso>(false);
-        this.procesosFinalizados = new MyStackImpl<Proceso>();
-        this.usuarios = new MyHashImpl<String,Usuario>();
-    }
-
-    public MyQueue<Proceso> getProcesosNuevos() {
-        return procesosNuevos;
-    }
-
-    public void setProcesosNuevos(MyQueue<Proceso> procesosNuevos) {
-        this.procesosNuevos = procesosNuevos;
-    }
-
-    public MyHeap<Proceso> getProcesosPendientes() {
-        return procesosPendientes;
-    }
-
-    public void setProcesosPendientes(MyHeap<Proceso> procesosPendientes) {
-        this.procesosPendientes = procesosPendientes;
-    }
-
-    public MyStack<Proceso> getProcesosFinalizados() {
-        return procesosFinalizados;
-    }
-
-    public void setProcesosFinalizados(MyStack<Proceso> procesosFinalizados) {
-        this.procesosFinalizados = procesosFinalizados;
-    }
 
     @Override
     public void loadProcessAndUserData(String processCsvPath, String usersCsvPath) {
 
         try{
-            //Cargar Usuarios
-            BufferedReader brU = new BufferedReader(new FileReader(usersCsvPath)); // Hace cosas con el archivo para poder leer una linea a la vez
+            // -_-_-_- CARGAR USUARIOS -_-_-_-
 
-            String lineaU = brU.readLine(); //lee la linea de (uid,alias,tipo) y se prepara para leer la proxima linea
-            lineaU=brU.readLine(); //lee la primer linea con datos y se prepara para la proxima
+            BufferedReader brU = new BufferedReader(new FileReader(usersCsvPath)); // Hace cosas con el archivo para poder leer una línea a la vez
+// todo - envuelve el archivo en un 'FileReader' que abre el archivo y permite que BufferedReader lea una línea a la vez
 
-            while (lineaU != null){ //recorro todas las lineas arrancando en la primera
+            brU.readLine();        // descarta la cabecera, no la guarda en ninguna variable porque no nos interesa
+            String lineaU = brU.readLine(); // lee la primer línea CON DATOS (no la cabecera) y se prepara para la próxima (el cursor se 'para' sobre la siguiente)
 
-                //Asumimos que el csv (como se ve en el de ejemplo) esta bien hecho
-                //preguntar x las dudas
-
-                //Separamos cada atributo
-                String atributosU[]=lineaU.split(";",3);
-
-                //Guardamos los atributos en variables
-                String uid= atributosU[0];
-                String alias= atributosU[1];
-                String tipo= atributosU[2];
-
-                //creamos y guardamos en el hash nuestro usuario
-                Usuario nuevoUsuario = new Usuario(uid, alias, tipo);
-                this.usuarios.put(uid,nuevoUsuario);
-
-                //Leemos la proxima linea
-                lineaU= brU.readLine();
-
-
-
-                //Cargar procesos
-                BufferedReader brP = new BufferedReader(new FileReader(usersCsvPath));
-
-                String lineaP = brP.readLine(); //lee la linea de (uid,alias,tipo) y se prepara para leer la proxima linea
-                lineaP=brP.readLine(); //lee la primer linea con datos y se prepara para la proxima
-
-                while (lineaP != null){ //recorro todas las lineas arrancando en la primera
-
-                    //Asumimos que el csv (como se ve en el de ejemplo) no tiene lineas vacias
-
-                    //Separamos cada atributo
-                    String atributosP[]=lineaP.split(";",4);
-
-                    //Guardamos los atributos en variables
-                    String pid= atributosP[0];
-                    String nombre=atributosP[2];
-
-                    String uidP= atributosP[1];
-                    Usuario usuarioP = usuarios.get(uidP);
-
-
-                    String stringEventos= atributosP[3];
-                    stringEventos = stringEventos.substring(1, stringEventos.length()-1); //saca el {} al principio y fin
-
-
-                    //SEGUIR
-
-
-
-
-
-
-                    //creamos y guardamos en el hash nuestro usuario
-                    Usuario nuevoUsuario = new Usuario(uid, alias, tipo);
-                    this.usuarios.put(uid,nuevoUsuario);
-
-
-
-
+            if (lineaU == null) {         // todo chequeo innecesario porque no nos van a pasar archivos vacíos pero me gusta hacerlo igual jej
+                System.out.println("El archivo de usuarios está vacío");
+                return;
             }
 
+            while (lineaU != null) { //recorro todas las líneas arrancando en la primera
 
+                // P1 - separamos cada atributo
+                String[] atributosU = lineaU.split(";", 3);
+
+                // P2 - guardamos los atributos en variables
+                String uid = atributosU[0];
+                String alias = atributosU[1];
+                String tipo = atributosU[2];
+
+                // P3 - creamos y guardamos usuario en el hash
+                Usuario nuevoUsuario = new Usuario(uid, alias, tipo);
+                this.usuarios.put(uid, nuevoUsuario);
+
+                // P4 - leemos la próxima linea
+                lineaU = brU.readLine();
+            }
+            brU.close();
+
+
+            // -_-_-_- CARGAR USUARIOS -_-_-_-
+
+            BufferedReader brP = new BufferedReader(new FileReader(usersCsvPath));
+
+            brP.readLine();        // lee cabecera (uid, alias, tipo) y para el cursor sobre la próxima línea
+            String lineaP = brP.readLine();      // lee la primer línea CON DATOS y se prepara para la próxima (el cursor se 'para' sobre la siguiente)
+
+            if (lineaP == null) {         // todo chequeo innecesario porque no nos van a pasar archivos vacíos pero me gusta hacerlo igual jej
+                System.out.println("El archivo de procesos está vacío");
+                return;
+            }
+
+            while (lineaP != null){     // recorro todas las líneas de procesos
+
+                // P1 - separamos cada atributo
+                String[] atributosP = lineaP.split(";", 4);
+
+                // P2 - guardamos los atributos en variables
+                String pid = atributosP[0];
+                String uidP = atributosP[1];
+                String pname = atributosP[2];
+                String stringEventos= atributosP[3];
+
+                // P2.1 - consigo el usuario ya existente en los datos
+                Usuario usuarioP = usuarios.get(uidP);
+
+                // P2.2 - arreglo los eventos de cada proceso (separo tipo de evento de las instrucciones y lo guardo en lista 'eventos')
+                stringEventos = stringEventos.substring(1, stringEventos.length()-1); // saca el '{' del principio y el '}' del final
+                String[] partesEventos = stringEventos.split("# ");      // separo por '#' cada evento individualmente
+
+                MyList<Evento> eventos = new MyLinkedListImpl<>();          // creo lista de eventos
+
+                for (String parteEv : partesEventos) {
+                    // separo por ':[' el tipo de evento y las instrucciones
+                    String[] tipoEInstrucciones = parteEv.split(":\\[");      // separo por ':\\[' porque los corchetes '[' tienen un significado especial. Con \\ le digo: quiero el corchete literal, no el especial.
+
+                    // guardo at. en variables
+                    String tipoEv = tipoEInstrucciones[0]; // puede ser DISK, CPU, RAM...
+                    String instString = tipoEInstrucciones[1]; // queda todas las instrucciones en un mismo string pero separadas por ',' y con un ']' al final (que sobra)
+                    instString = instString.substring( 0, instString.length() - 1 );    // saco el ']' que sobraba
+
+                    MyList<String> instrucciones = new MyLinkedListImpl<>();    // creo lista para guardar las instrucciones
+                    String[] instArray = instString.split(", ");         // creo array de strings con las instrucciones (que separo por ', ')
+
+                    for (String inst : instArray) {     // guardo de a una las instrucciones en la lista instrucciones
+                        instrucciones.add(inst);
+                    }
+
+                    Evento nuevoEv = new Evento(tipoEv, instrucciones);         // creo el nuevo evento
+                    eventos.add(nuevoEv);      // guardo el nuevo evento
+                }
+                lineaP = brP.readLine();
+            }
+            brP.close();      // .close() 'libera' el archivo
+        } catch (IOException e) {           // Java obliga a manejar esas exceptions cuando uso BufferedReader y FileReader. Si no pongo el try-catch, el código no compila.
+            System.out.println("Error al leer archivos");
+            System.out.println(e.getMessage());
         }
-
-
-
-        System.out.println("IMPLEMENTAR");
     }
 
     @Override
