@@ -74,9 +74,9 @@ public class ProcessManagerImpl implements ProcessManager{
             brU.close();
 
 
-            // -_-_-_- CARGAR USUARIOS -_-_-_-
+            // -_-_-_- CARGAR PROCESOS -_-_-_-
 
-            BufferedReader brP = new BufferedReader(new FileReader(usersCsvPath));
+            BufferedReader brP = new BufferedReader(new FileReader(processCsvPath));
 
             brP.readLine();        // lee cabecera (uid, alias, tipo) y para el cursor sobre la próxima línea
             String lineaP = brP.readLine();      // lee la primer línea CON DATOS y se prepara para la próxima (el cursor se 'para' sobre la siguiente)
@@ -125,6 +125,9 @@ public class ProcessManagerImpl implements ProcessManager{
                     Evento nuevoEv = new Evento(tipoEv, instrucciones);         // creo el nuevo evento
                     eventos.add(nuevoEv);      // guardo el nuevo evento
                 }
+                Proceso nuevoPr = new Proceso(pid, pname, 0, usuarioP, "NEW", eventos);     // creo el proceso nuevo con prioridad = 0 porque la prioridad real se calcula luego en 'prepareProcess'
+                procesosNuevos.enqueue(nuevoPr);        // lo cargo en la fila de procesos
+
                 lineaP = brP.readLine();
             }
             brP.close();      // .close() 'libera' el archivo
