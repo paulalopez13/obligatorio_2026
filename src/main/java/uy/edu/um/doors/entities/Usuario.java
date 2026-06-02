@@ -1,5 +1,7 @@
 package uy.edu.um.doors.entities;
 
+import java.util.Objects;
+
 public class Usuario {
 
     private String uid;
@@ -34,5 +36,17 @@ public class Usuario {
 
     public void setTipo(String tipo) {
         this.tipo = tipo;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Usuario usuario = (Usuario) o;
+        return Objects.equals(uid, usuario.uid);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(uid);
     }
 }

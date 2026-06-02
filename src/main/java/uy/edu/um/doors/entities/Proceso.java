@@ -1,7 +1,11 @@
 package uy.edu.um.doors.entities;
 
+import lombok.Getter;
+import lombok.Setter;
 import uy.edu.um.tad.list.MyList;
 
+@Setter
+@Getter
 public class Proceso implements Comparable<Proceso> {
 
     private String pid;
@@ -10,6 +14,7 @@ public class Proceso implements Comparable<Proceso> {
     private int prioridad;
     private String estado; //Puede ser NEW, PENDING, RUNNING o FINISHED. Como eso solo se edita desde el codigo (no el usuario) no hay problemas con mayusculas y minisculas
     private MyList<Evento> eventos;
+    private String finalizacion;
 
 
     public Proceso(String pid, String nombre, int prioridad, Usuario usuario, String estado, MyList<Evento> eventos) {
@@ -19,55 +24,7 @@ public class Proceso implements Comparable<Proceso> {
         this.usuario = usuario;
         this.estado = estado;
         this.eventos = eventos;
-    }
-
-
-    public String getPid() {
-        return pid;
-    }
-
-    public void setPid(String pid) {
-        this.pid = pid;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public Usuario getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
-    }
-
-    public int getPrioridad() {
-        return prioridad;
-    }
-
-    public void setPrioridad(int prioridad) {
-        this.prioridad = prioridad;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
-
-    public MyList<Evento> getEventos() {
-        return eventos;
-    }
-
-    public void setEventos(MyList<Evento> eventos) {
-        this.eventos = eventos;
+        this.finalizacion=null;
     }
 
 
@@ -117,7 +74,26 @@ public class Proceso implements Comparable<Proceso> {
         return (int) prioridadDouble;
     }
 
+    public void printEventos(){
+
+        for(int i=0;i<this.getEventos().size();i++){
+            Evento evento=this.getEventos().get(i);
+
+            String linea = "EVENT: "
+                    + evento.getTipo() + " |"
+                    + "Instructions " + evento.getInstrucciones();
+
+            System.out.println(linea);
+
+
+        }
+
+
+
+    }
+
 }
+
 
 
 
