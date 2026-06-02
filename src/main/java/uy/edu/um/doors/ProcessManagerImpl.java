@@ -11,6 +11,7 @@ import uy.edu.um.tad.heap.MyHeap;
 import uy.edu.um.tad.heap.MyHeapImpl;
 import uy.edu.um.tad.list.MyLinkedListImpl;
 import uy.edu.um.tad.list.MyList;
+import uy.edu.um.tad.queue.EmptyQueueException;
 import uy.edu.um.tad.queue.MyQueue;
 import uy.edu.um.tad.queue.MyQueueImpl;
 import uy.edu.um.tad.stack.MyStack;
@@ -26,6 +27,7 @@ public class ProcessManagerImpl implements ProcessManager{
 
     //EL DISEÑO DE LA ESTRUCTURA DE ALMACENAMIENTO DEBE IMPLEMENTARSE EN ESTA CLASE EN RELACIÓN CON LAS ENTIDADES QUE DEFINA
 // TODO - no entendí el comentario de arriba :))
+
     @Getter
     private final MyQueue<Proceso> procesosNuevos = new MyQueueImpl<Proceso>();
     @Getter
@@ -81,10 +83,6 @@ public class ProcessManagerImpl implements ProcessManager{
             brP.readLine();        // lee cabecera (uid, alias, tipo) y para el cursor sobre la próxima línea
             String lineaP = brP.readLine();      // lee la primer línea CON DATOS y se prepara para la próxima (el cursor se 'para' sobre la siguiente)
 
-            if (lineaP == null) {         // todo chequeo innecesario porque no nos van a pasar archivos vacíos pero me gusta hacerlo igual jej
-                System.out.println("El archivo de procesos está vacío");
-                return;
-            }
 
             while (lineaP != null){     // recorro todas las líneas de procesos
 
@@ -101,7 +99,9 @@ public class ProcessManagerImpl implements ProcessManager{
                 Usuario usuarioP = usuarios.get(uidP);
 
                 // P2.2 - arreglo los eventos de cada proceso (separo tipo de evento de las instrucciones y lo guardo en lista 'eventos')
+
                 stringEventos = stringEventos.substring(1, stringEventos.length()-1); // saca el '{' del principio y el '}' del final
+
                 String[] partesEventos = stringEventos.split("# ");      // separo por '#' cada evento individualmente
 
                 MyList<Evento> eventos = new MyLinkedListImpl<>();          // creo lista de eventos
@@ -112,14 +112,14 @@ public class ProcessManagerImpl implements ProcessManager{
 
                     // guardo at. en variables
                     String tipoEv = tipoEInstrucciones[0]; // puede ser DISK, CPU, RAM...
-                    String instString = tipoEInstrucciones[1]; // queda todas las instrucciones en un mismo string pero separadas por ',' y con un ']' al final (que sobra)
-                    instString = instString.substring( 0, instString.length() - 1 );    // saco el ']' que sobraba
+                    String instruccionesString = tipoEInstrucciones[1]; // queda todas las instrucciones en un mismo string pero separadas por ',' y con un ']' al final (que sobra)
+                    instruccionesString = instruccionesString.substring( 0, instruccionesString.length() - 1 );    // saco el ']' que sobraba
 
                     MyList<String> instrucciones = new MyLinkedListImpl<>();    // creo lista para guardar las instrucciones
-                    String[] instArray = instString.split(", ");         // creo array de strings con las instrucciones (que separo por ', ')
+                    String[] instruccionesArray = instruccionesString.split(", ");         // creo array de strings con las instrucciones (que separo por ', ')
 
-                    for (String inst : instArray) {     // guardo de a una las instrucciones en la lista instrucciones
-                        instrucciones.add(inst);
+                    for (String instruccion : instruccionesArray) {     // guardo de a una las instrucciones en la lista instrucciones
+                        instrucciones.add(instruccion);
                     }
 
                     Evento nuevoEv = new Evento(tipoEv, instrucciones);         // creo el nuevo evento
@@ -131,6 +131,10 @@ public class ProcessManagerImpl implements ProcessManager{
                 lineaP = brP.readLine();
             }
             brP.close();      // .close() 'libera' el archivo
+
+
+            System.out.println("Se cargaron los archivos correctamente");
+
         } catch (IOException e) {           // Java obliga a manejar esas exceptions cuando uso BufferedReader y FileReader. Si no pongo el try-catch, el código no compila.
             System.out.println("Error al leer archivos");
             System.out.println(e.getMessage());
@@ -139,7 +143,26 @@ public class ProcessManagerImpl implements ProcessManager{
 
     @Override
     public void prepareProcesses() {
-        System.out.println("IMPLEMENTAR");
+
+        while (!procesosNuevos.isEmpty()){
+
+            Proceso proceso = null;
+            try {
+                proceso = procesosNuevos.dequeue();
+
+            } catch (EmptyQueueException e) {
+
+                throw new RuntimeException(e);
+            }
+
+            proceso.setPrioridad(proceso.calcularPrioridad());
+
+            proceso.setEstado("PENDIENTE");
+
+            procesosPendientes.insert(proceso);
+        }
+
+
     }
 
     @Override

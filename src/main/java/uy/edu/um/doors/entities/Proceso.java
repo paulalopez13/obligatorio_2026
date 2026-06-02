@@ -76,4 +76,48 @@ public class Proceso implements Comparable<Proceso> {
         return Integer.compare(this.prioridad, otro.prioridad); //devuelve negativo si this<otro, 0 si song iguales, positivo si this>otro
     }
 
+    public int calcularPrioridad(){
+
+        double cantidadEventos = eventos.size();
+        double cantidadDISK = 0;
+        double cantidadCPU = 0;
+        double cantidadRAM = 0;
+
+        for(int i=0; i<eventos.size(); i++){
+
+            switch (eventos.get(i).getTipo()) {
+                case "DISK":
+                    cantidadDISK++;
+                    break;
+
+                case "CPU":
+                    cantidadCPU++;
+                    break;
+
+                case "RAM":
+                    cantidadRAM++;
+                    break;
+
+            }
+        }
+
+        int pesoUsuario=0;
+
+        if(this.getUsuario().getTipo().equals("ADMIN")){
+            pesoUsuario=32;
+        }
+
+        else{
+            pesoUsuario=8;
+        }
+
+        double prioridadDouble = (((8*cantidadCPU + 2*cantidadRAM + 2*cantidadDISK)/cantidadEventos)+pesoUsuario*cantidadEventos);
+
+
+        return (int) prioridadDouble;
+    }
+
 }
+
+
+
