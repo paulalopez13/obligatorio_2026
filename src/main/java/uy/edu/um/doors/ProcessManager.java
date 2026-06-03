@@ -10,8 +10,8 @@ public interface ProcessManager {
     public void finishProcessOk();
     public void finishProcessError();
     public void terminateProcess(int uid);
-    public void printStatus() throws EmptyStackException;
-    public void printStatusVerbose() throws EmptyStackException;
+    public void printStatus();
+    public void printStatusVerbose();
     public void printStatusByUser(int uid);
     public void printStatusByProcess(int pid);
 }

@@ -53,9 +53,16 @@ public class Logger {
         for(int i=0;i<proceso.getEventos().size();i++){
             Evento evento=proceso.getEventos().get(i);
 
-            linea = "EVENT: "
-                    + evento.getTipo() + " |"
-                    + "Instructions " + evento.getInstrucciones();
+            linea = "EVENT: " + evento.getTipo() + " |" + "Instructions " + evento.getInstrucciones();
+
+            for(int j=0; j<evento.getInstrucciones().size();j++)   {
+                linea = linea + evento.getInstrucciones().get(j) + ", ";
+            }
+
+            linea = linea.substring(0, linea.length()-2);
+            linea = linea + "]";
+
+            System.out.println(linea);
 
             write(linea);
         }

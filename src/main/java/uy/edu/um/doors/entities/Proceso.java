@@ -79,16 +79,18 @@ public class Proceso implements Comparable<Proceso> {
         for(int i=0;i<this.getEventos().size();i++){
             Evento evento=this.getEventos().get(i);
 
-            String linea = "EVENT: "
-                    + evento.getTipo() + " |"
-                    + "Instructions " + evento.getInstrucciones();
+            String linea = "EVENT: " + evento.getTipo() + " |" + "Instructions [";
+
+            for(int j=0; j<evento.getInstrucciones().size();j++)   {
+                linea = linea + evento.getInstrucciones().get(j) + ", ";
+            }
+
+            linea = linea.substring(0, linea.length()-2);
+            linea = linea + "]";
 
             System.out.println(linea);
 
-
         }
-
-
 
     }
 
