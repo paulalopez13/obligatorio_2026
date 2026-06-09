@@ -11,5 +11,3 @@ public class Main {
 
     }
 }
-
-// PAU pload -p /Users/paulalopez/obligatorio_2026/process.csv -u /Users/paulalopez/obligatorio_2026/users.csv

@@ -50,21 +50,15 @@ public class ProcessManagerImpl implements ProcessManager {
 
     @Override
     public void loadProcessAndUserData(String processCsvPath, String usersCsvPath) {
-        if(archivos==false) {
+        if(!archivos) {
 
             try {
                 // -_-_-_- CARGAR USUARIOS -_-_-_-
 
                 BufferedReader brU = new BufferedReader(new FileReader(usersCsvPath)); // Hace cosas con el archivo para poder leer una línea a la vez
 
-
                 brU.readLine();        // descarta la cabecera, no la guarda en ninguna variable porque no nos interesa
                 String lineaU = brU.readLine(); // lee la primer línea CON DATOS (no la cabecera) y se prepara para la próxima (el cursor se 'para' sobre la siguiente)
-
-                if (lineaU == null) {
-                    System.out.println("El archivo de usuarios está vacío");
-                    return;
-                }
 
                 while (lineaU != null) { //recorro todas las líneas arrancando en la primera
 
