@@ -43,109 +43,116 @@ public class ProcessManagerImpl implements ProcessManager {
     private final Logger logger = new Logger();
 
     private Proceso procesoEjecutado = null;
+
+    boolean archivos = false;
     //running process
 
 
     @Override
     public void loadProcessAndUserData(String processCsvPath, String usersCsvPath) {
+        if(archivos==false) {
 
-        try {
-            // -_-_-_- CARGAR USUARIOS -_-_-_-
+            try {
+                // -_-_-_- CARGAR USUARIOS -_-_-_-
 
-            BufferedReader brU = new BufferedReader(new FileReader(usersCsvPath)); // Hace cosas con el archivo para poder leer una línea a la vez
-// todo - envuelve el archivo en un 'FileReader' que abre el archivo y permite que BufferedReader lea una línea a la vez
-
-            brU.readLine();        // descarta la cabecera, no la guarda en ninguna variable porque no nos interesa
-            String lineaU = brU.readLine(); // lee la primer línea CON DATOS (no la cabecera) y se prepara para la próxima (el cursor se 'para' sobre la siguiente)
-
-            if (lineaU == null) {         // todo chequeo innecesario porque no nos van a pasar archivos vacíos pero me gusta hacerlo igual jej
-                System.out.println("El archivo de usuarios está vacío");
-                return;
-            }
-
-            while (lineaU != null) { //recorro todas las líneas arrancando en la primera
-
-                // P1 - separamos cada atributo
-                String[] atributosU = lineaU.split(";", 3);
-
-                // P2 - guardamos los atributos en variables
-                String uid = atributosU[0];
-                String alias = atributosU[1];
-                String tipo = atributosU[2];
-
-                // P3 - creamos y guardamos usuario en el hash
-                Usuario nuevoUsuario = new Usuario(uid, alias, tipo);
-                this.usuarios.put(uid, nuevoUsuario);
-
-                // P4 - leemos la próxima linea
-                lineaU = brU.readLine();
-            }
-            brU.close();
+                BufferedReader brU = new BufferedReader(new FileReader(usersCsvPath)); // Hace cosas con el archivo para poder leer una línea a la vez
 
 
-            // -_-_-_- CARGAR PROCESOS -_-_-_-
+                brU.readLine();        // descarta la cabecera, no la guarda en ninguna variable porque no nos interesa
+                String lineaU = brU.readLine(); // lee la primer línea CON DATOS (no la cabecera) y se prepara para la próxima (el cursor se 'para' sobre la siguiente)
 
-            BufferedReader brP = new BufferedReader(new FileReader(processCsvPath));
-
-            brP.readLine();        // lee cabecera (uid, alias, tipo) y para el cursor sobre la próxima línea
-            String lineaP = brP.readLine();      // lee la primer línea CON DATOS y se prepara para la próxima (el cursor se 'para' sobre la siguiente)
-
-
-            while (lineaP != null) {     // recorro todas las líneas de procesos
-
-                // P1 - separamos cada atributo
-                String[] atributosP = lineaP.split(";", 4);
-
-                // P2 - guardamos los atributos en variables
-                String pid = atributosP[0];
-                String uidP = atributosP[1];
-                String pname = atributosP[2];
-                String stringEventos = atributosP[3];
-
-                // P2.1 - consigo el usuario ya existente en los datos
-                Usuario usuarioP = usuarios.get(uidP);
-
-                // P2.2 - arreglo los eventos de cada proceso (separo tipo de evento de las instrucciones y lo guardo en lista 'eventos')
-
-                stringEventos = stringEventos.substring(1, stringEventos.length() - 1); // saca el '{' del principio y el '}' del final
-
-                String[] partesEventos = stringEventos.split("# ");      // separo por '#' cada evento individualmente
-
-                MyList<Evento> eventos = new MyLinkedListImpl<>();          // creo lista de eventos
-
-                for (String parteEv : partesEventos) {
-                    // separo por ':[' el tipo de evento y las instrucciones
-                    String[] tipoEInstrucciones = parteEv.split(":\\[");      // separo por ':\\[' porque los corchetes '[' tienen un significado especial. Con \\ le digo: quiero el corchete literal, no el especial.
-
-                    // guardo at. en variables
-                    String tipoEv = tipoEInstrucciones[0]; // puede ser DISK, CPU, RAM...
-                    String instruccionesString = tipoEInstrucciones[1]; // queda todas las instrucciones en un mismo string pero separadas por ',' y con un ']' al final (que sobra)
-                    instruccionesString = instruccionesString.substring(0, instruccionesString.length() - 1);    // saco el ']' que sobraba
-
-                    MyList<String> instrucciones = new MyLinkedListImpl<>();    // creo lista para guardar las instrucciones
-                    String[] instruccionesArray = instruccionesString.split(", ");         // creo array de strings con las instrucciones (que separo por ', ')
-
-                    for (String instruccion : instruccionesArray) {     // guardo de a una las instrucciones en la lista instrucciones
-                        instrucciones.add(instruccion);
-                    }
-
-                    Evento nuevoEv = new Evento(tipoEv, instrucciones);         // creo el nuevo evento
-                    eventos.add(nuevoEv);      // guardo el nuevo evento
+                if (lineaU == null) {
+                    System.out.println("El archivo de usuarios está vacío");
+                    return;
                 }
-                Proceso nuevoPr = new Proceso(pid, pname, 0, usuarioP, "NEW", eventos);     // creo el proceso nuevo con prioridad = 0 porque la prioridad real se calcula luego en 'prepareProcess'
-                procesosNuevos.enqueue(nuevoPr);        // lo cargo en la fila de procesos
 
-                lineaP = brP.readLine();
+                while (lineaU != null) { //recorro todas las líneas arrancando en la primera
+
+                    // P1 - separamos cada atributo
+                    String[] atributosU = lineaU.split(";", 3);
+
+                    // P2 - guardamos los atributos en variables
+                    String uid = atributosU[0];
+                    String alias = atributosU[1];
+                    String tipo = atributosU[2];
+
+                    // P3 - creamos y guardamos usuario en el hash
+                    Usuario nuevoUsuario = new Usuario(uid, alias, tipo);
+                    this.usuarios.put(uid, nuevoUsuario);
+
+                    // P4 - leemos la próxima linea
+                    lineaU = brU.readLine();
+                }
+                brU.close();
+
+
+                // -_-_-_- CARGAR PROCESOS -_-_-_-
+
+                BufferedReader brP = new BufferedReader(new FileReader(processCsvPath));
+
+                brP.readLine();        // lee cabecera (uid, alias, tipo) y para el cursor sobre la próxima línea
+                String lineaP = brP.readLine();      // lee la primer línea CON DATOS y se prepara para la próxima (el cursor se 'para' sobre la siguiente)
+
+
+                while (lineaP != null) {     // recorro todas las líneas de procesos
+
+                    // P1 - separamos cada atributo
+                    String[] atributosP = lineaP.split(";", 4);
+
+                    // P2 - guardamos los atributos en variables
+                    String pid = atributosP[0];
+                    String uidP = atributosP[1];
+                    String pname = atributosP[2];
+                    String stringEventos = atributosP[3];
+
+                    // P2.1 - consigo el usuario ya existente en los datos
+                    Usuario usuarioP = usuarios.get(uidP);
+
+                    // P2.2 - arreglo los eventos de cada proceso (separo tipo de evento de las instrucciones y lo guardo en lista 'eventos')
+
+                    stringEventos = stringEventos.substring(1, stringEventos.length() - 1); // saca el '{' del principio y el '}' del final
+
+                    String[] partesEventos = stringEventos.split("# ");      // separo por '#' cada evento individualmente
+
+                    MyList<Evento> eventos = new MyLinkedListImpl<>();          // creo lista de eventos
+
+                    for (String parteEv : partesEventos) {
+                        // separo por ':[' el tipo de evento y las instrucciones
+                        String[] tipoEInstrucciones = parteEv.split(":\\[");      // separo por ':\\[' porque los corchetes '[' tienen un significado especial. Con \\ le digo: quiero el corchete literal, no el especial.
+
+                        // guardo at. en variables
+                        String tipoEv = tipoEInstrucciones[0]; // puede ser DISK, CPU, RAM...
+                        String instruccionesString = tipoEInstrucciones[1]; // queda todas las instrucciones en un mismo string pero separadas por ',' y con un ']' al final (que sobra)
+                        instruccionesString = instruccionesString.substring(0, instruccionesString.length() - 1);    // saco el ']' que sobraba
+
+                        MyList<String> instrucciones = new MyLinkedListImpl<>();    // creo lista para guardar las instrucciones
+                        String[] instruccionesArray = instruccionesString.split(", ");         // creo array de strings con las instrucciones (que separo por ', ')
+
+                        for (String instruccion : instruccionesArray) {     // guardo de a una las instrucciones en la lista instrucciones
+                            instrucciones.add(instruccion);
+                        }
+
+                        Evento nuevoEv = new Evento(tipoEv, instrucciones);         // creo el nuevo evento
+                        eventos.add(nuevoEv);      // guardo el nuevo evento
+                    }
+                    Proceso nuevoPr = new Proceso(pid, pname, 0, usuarioP, "NEW", eventos);     // creo el proceso nuevo con prioridad = 0 porque la prioridad real se calcula luego en 'prepareProcess'
+                    procesosNuevos.enqueue(nuevoPr);        // lo cargo en la fila de procesos
+
+                    lineaP = brP.readLine();
+                }
+                brP.close();      // .close() 'libera' el archivo
+
+                archivos = true;
+                System.out.println("Se cargaron los archivos correctamente");
+
+            } catch (
+                    IOException e) {           // Java obliga a manejar esas exceptions cuando uso BufferedReader y FileReader. Si no pongo el try-catch, el código no compila.
+                System.out.println("Error al leer archivos");
+                System.out.println(e.getMessage());
             }
-            brP.close();      // .close() 'libera' el archivo
-
-
-            System.out.println("Se cargaron los archivos correctamente");
-
-        } catch (
-                IOException e) {           // Java obliga a manejar esas exceptions cuando uso BufferedReader y FileReader. Si no pongo el try-catch, el código no compila.
-            System.out.println("Error al leer archivos");
-            System.out.println(e.getMessage());
+        }
+        else{
+            System.out.println("Los archivos ya fueron cargados al sistema");
         }
     }
 
@@ -166,7 +173,7 @@ public class ProcessManagerImpl implements ProcessManager {
 
             proceso.setPrioridad(proceso.calcularPrioridad());
 
-            proceso.setEstado("PENDIENTE");
+            proceso.setEstado("PENDING");
 
             procesosPendientes.insert(proceso);
 
@@ -185,15 +192,18 @@ public class ProcessManagerImpl implements ProcessManager {
         if(procesoEjecutado==null){
             try {
                 procesoEjecutado = procesosPendientes.remove();
+
+                procesoEjecutado.setEstado("RUNNING");
+
+                logger.logExecute(procesoEjecutado);
+
+                System.out.println("Se inicio la ejecucion del proceso correctamente");
+
             } catch (EmptyHeapException e) {
                 System.out.println(" No hay procesos pendientes para ejecutar");
             }
 
-            procesoEjecutado.setEstado("RUNNING");
 
-            logger.logExecute(procesoEjecutado);
-
-            System.out.println("Se inicio la ejecucion del proceso correctamente");
         }
         else{
             System.out.println("Ya hay un proceso en ejecucion");
@@ -220,15 +230,21 @@ public class ProcessManagerImpl implements ProcessManager {
             }
         }
 
-        procesoEjecutado.setEstado("FINISHED");
-        procesoEjecutado.setFinalizacion("OK");
-        procesosFinalizados.push(procesoEjecutado);
+        if(procesoEjecutado!=null){
+            procesoEjecutado.setEstado("FINISHED");
+            procesoEjecutado.setFinalizacion("OK");
+            procesosFinalizados.push(procesoEjecutado);
 
-        logger.logFinishOK(procesoEjecutado);
+            logger.logFinishOK(procesoEjecutado);
 
-        procesoEjecutado = null;
+            procesoEjecutado = null;
 
-        System.out.println("El proceso finalizo correctamente");
+            System.out.println("El proceso finalizo correctamente");
+        }
+        else{
+            System.out.println("No hay ningun proceso en ejecucion para finalizar");
+        }
+
 
     }
 
@@ -250,20 +266,29 @@ public class ProcessManagerImpl implements ProcessManager {
             }
         }
 
-        procesoEjecutado.setEstado("FINISHED");
-        procesoEjecutado.setFinalizacion("ERROR");
-        procesosFinalizados.push(procesoEjecutado);
+        if(procesoEjecutado!=null){
+            procesoEjecutado.setEstado("FINISHED");
+            procesoEjecutado.setFinalizacion("ERROR");
+            procesosFinalizados.push(procesoEjecutado);
 
-        logger.logFinishError(procesoEjecutado);
+            logger.logFinishError(procesoEjecutado);
 
-        procesoEjecutado = null;
+            procesoEjecutado = null;
 
-        System.out.println("El proceso se finalizo con error");
-
+            System.out.println("El proceso se finalizo con error");
+        }
+        else{
+            System.out.println("No hay proceso en ejecucion para finalizar");
+        }
     }
 
     @Override
     public void terminateProcess(int uid) {
+        if(!usuarios.contains(String.valueOf(uid))){
+            System.out.println("El usuario ingresado no existe");
+            return;
+        }
+
         if (procesosFinalizados.size() == ProcessManager.MAX_FINISHED_PROCESS_ON_RAM) { //Asumimos q 500 es el limite del sistema
 
             logger.logOverflow();
@@ -280,15 +305,22 @@ public class ProcessManagerImpl implements ProcessManager {
             }
         }
 
-        procesoEjecutado.setEstado("FINISHED");
-        procesoEjecutado.setFinalizacion("TERMINATED");
-        procesosFinalizados.push(procesoEjecutado);
+        if(procesoEjecutado!=null){
+            procesoEjecutado.setEstado("FINISHED");
+            procesoEjecutado.setFinalizacion("TERMINATED");
+            procesosFinalizados.push(procesoEjecutado);
 
-        logger.logFinishTerm(procesoEjecutado, uid);
+            String alias = usuarios.get(String.valueOf(uid)).getAlias();
 
-        procesoEjecutado = null;
+            logger.logFinishTerm(procesoEjecutado, uid, alias);
 
-        System.out.println("El proceso fue terminado por el usuario: " + uid);
+            procesoEjecutado = null;
+
+            System.out.println("El proceso fue terminado por el usuario: " + uid);
+        }
+        else{
+            System.out.println("No hay proceso en ejecucion para finalizar");
+        }
     }
 
     @Override
@@ -510,7 +542,7 @@ public class ProcessManagerImpl implements ProcessManager {
         String pidS = String.valueOf(pid);
 
 
-        if (procesoEjecutado.getPid().equals(pidS)) {
+        if (procesoEjecutado!= null && procesoEjecutado.getPid().equals(pidS)) {
 
             System.out.println("Pid: " + procesoEjecutado.getPid() + " Nombre: " + procesoEjecutado.getNombre() + " Estado: RUNNING " + "Usuario: " + procesoEjecutado.getUsuario().getAlias() + " UID: " + procesoEjecutado.getUsuario().getUid() + " Prioridad: " + procesoEjecutado.getPrioridad());
 
@@ -567,7 +599,7 @@ public class ProcessManagerImpl implements ProcessManager {
 
                     //Si lo encuentra lo printea y para de recorrer
                     if(procesoaux2.getPid().equals(pidS)){
-                        System.out.println("Pid: " + procesoaux2.getPid() + " Nombre: " + procesoaux2.getNombre() + " Estado: FINISHED "+procesoaux2.getFinalizacion() + " Usuario: " + procesoaux2.getUsuario() + " UID: " + procesoaux2.getUsuario().getUid() + " Prioridad: " + procesoaux2.getPrioridad());
+                        System.out.println("Pid: " + procesoaux2.getPid() + " Nombre: " + procesoaux2.getNombre() + " Estado: FINISHED "+procesoaux2.getFinalizacion() + " Usuario: " + procesoaux2.getUsuario().getAlias() + " UID: " + procesoaux2.getUsuario().getUid() + " Prioridad: " + procesoaux2.getPrioridad());
                         procesoaux2.printEventos();
 
                         found=true;
@@ -577,7 +609,7 @@ public class ProcessManagerImpl implements ProcessManager {
                 }
 
                 //Devuelve los elementos al stack de procesos Finalizados
-                while (!auxiliar.isEmpty()) {
+                while (!auxiliar2.isEmpty()) {
                     try {
                         procesosFinalizados.push(auxiliar2.pop());
                     } catch (EmptyStackException e) {

@@ -65,7 +65,7 @@ public class Proceso implements Comparable<Proceso> {
         }
 
         else{
-            pesoUsuario=8;
+            pesoUsuario=16;
         }
 
         double prioridadDouble = (((8*cantidadCPU + 2*cantidadRAM + 2*cantidadDISK)/cantidadEventos)+pesoUsuario*cantidadEventos);

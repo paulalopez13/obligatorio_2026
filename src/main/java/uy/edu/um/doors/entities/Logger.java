@@ -53,7 +53,7 @@ public class Logger {
         for(int i=0;i<proceso.getEventos().size();i++){
             Evento evento=proceso.getEventos().get(i);
 
-            linea = "EVENT: " + evento.getTipo() + " |" + "Instructions " + evento.getInstrucciones();
+            linea = "EVENT: " + evento.getTipo() + " |" + "Instructions: [";
 
             for(int j=0; j<evento.getInstrucciones().size();j++)   {
                 linea = linea + evento.getInstrucciones().get(j) + ", ";
@@ -61,8 +61,6 @@ public class Logger {
 
             linea = linea.substring(0, linea.length()-2);
             linea = linea + "]";
-
-            System.out.println(linea);
 
             write(linea);
         }
@@ -82,17 +80,17 @@ public class Logger {
         write(linea);
     }
 
-    public void logFinishTerm(Proceso proceso, int uid){
+    public void logFinishTerm(Proceso proceso, int uid, String alias){
         String linea = "[" + getTimestamp() + "]: ENDING PROCESS: "
                 + "PID=" + proceso.getPid()
                 + " | STATE: TERMINATED by USER: "
-                + proceso.getUsuario().getAlias()
-                + "UID: " + uid;
+                + alias
+                + " UID: " + uid;
         write(linea);
     }
 
     public void logOverflow(){
-        String linea = "[" + getTimestamp() + "]: FINISHED PROCESS OVERFLOW ";
+        String linea = "[" + getTimestamp() + "]: Finished process stack overflow ";
         write(linea);
     }
 
