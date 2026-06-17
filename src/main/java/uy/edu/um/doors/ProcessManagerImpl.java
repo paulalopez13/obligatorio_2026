@@ -207,6 +207,10 @@ public class ProcessManagerImpl implements ProcessManager {
 
     @Override
     public void finishProcessOk() {
+        if(procesoEjecutado==null){
+            System.out.println("No hay proceso en ejecucion para finalizar");
+            return;
+        }
 
         if (procesosFinalizados.size() == ProcessManager.MAX_FINISHED_PROCESS_ON_RAM) { //Asumimos q 500 es el limite del sistema
 
@@ -224,26 +228,27 @@ public class ProcessManagerImpl implements ProcessManager {
             }
         }
 
-        if(procesoEjecutado!=null){
-            procesoEjecutado.setEstado("FINISHED");
-            procesoEjecutado.setFinalizacion("OK");
-            procesosFinalizados.push(procesoEjecutado);
+        procesoEjecutado.setEstado("FINISHED");
+        procesoEjecutado.setFinalizacion("OK");
+        procesosFinalizados.push(procesoEjecutado);
 
-            logger.logFinishOK(procesoEjecutado);
+        logger.logFinishOK(procesoEjecutado);
 
-            procesoEjecutado = null;
+        procesoEjecutado = null;
 
-            System.out.println("El proceso finalizo correctamente");
-        }
-        else{
-            System.out.println("No hay ningun proceso en ejecucion para finalizar");
-        }
+        System.out.println("El proceso finalizo correctamente");
+
 
 
     }
 
     @Override
     public void finishProcessError() {
+        if(procesoEjecutado==null){
+            System.out.println("No hay proceso en ejecucion para finalizar");
+            return;
+        }
+
         if (procesosFinalizados.size() == ProcessManager.MAX_FINISHED_PROCESS_ON_RAM) { //Asumimos q 500 es el limite del sistema
 
             logger.logOverflow();
@@ -260,24 +265,27 @@ public class ProcessManagerImpl implements ProcessManager {
             }
         }
 
-        if(procesoEjecutado!=null){
-            procesoEjecutado.setEstado("FINISHED");
-            procesoEjecutado.setFinalizacion("ERROR");
-            procesosFinalizados.push(procesoEjecutado);
 
-            logger.logFinishError(procesoEjecutado);
+    procesoEjecutado.setEstado("FINISHED");
+    procesoEjecutado.setFinalizacion("ERROR");
+    procesosFinalizados.push(procesoEjecutado);
 
-            procesoEjecutado = null;
+    logger.logFinishError(procesoEjecutado);
 
-            System.out.println("El proceso se finalizo con error");
-        }
-        else{
-            System.out.println("No hay proceso en ejecucion para finalizar");
-        }
+    procesoEjecutado = null;
+
+    System.out.println("El proceso se finalizo con error");
+
     }
 
     @Override
     public void terminateProcess(int uid) {
+        if(procesoEjecutado==null){
+            System.out.println("No hay proceso en ejecucion para finalizar");
+            return;
+        }
+
+
         if(!usuarios.contains(String.valueOf(uid))){
             System.out.println("El usuario ingresado no existe");
             return;
@@ -299,22 +307,18 @@ public class ProcessManagerImpl implements ProcessManager {
             }
         }
 
-        if(procesoEjecutado!=null){
-            procesoEjecutado.setEstado("FINISHED");
-            procesoEjecutado.setFinalizacion("TERMINATED");
-            procesosFinalizados.push(procesoEjecutado);
+        procesoEjecutado.setEstado("FINISHED");
+        procesoEjecutado.setFinalizacion("TERMINATED");
+        procesosFinalizados.push(procesoEjecutado);
 
-            String alias = usuarios.get(String.valueOf(uid)).getAlias();
+        String alias = usuarios.get(String.valueOf(uid)).getAlias();
 
-            logger.logFinishTerm(procesoEjecutado, uid, alias);
+        logger.logFinishTerm(procesoEjecutado, uid, alias);
 
-            procesoEjecutado = null;
+        procesoEjecutado = null;
 
-            System.out.println("El proceso fue terminado por el usuario: " + uid);
-        }
-        else{
-            System.out.println("No hay proceso en ejecucion para finalizar");
-        }
+        System.out.println("El proceso fue terminado por el usuario: " + uid);
+
     }
 
     @Override
