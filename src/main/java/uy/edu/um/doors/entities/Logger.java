@@ -55,8 +55,8 @@ public class Logger {
 
             linea = "EVENT: " + evento.getTipo() + " |" + "Instructions: [";
 
-            for(int j=0; j<evento.getInstrucciones().size();j++)   {
-                linea = linea + evento.getInstrucciones().get(j) + ", ";
+            for(int j=0; j<evento.getInstrucciones().length;j++)   {
+                linea = linea + evento.getInstrucciones()[j] + ", ";
             }
 
             linea = linea.substring(0, linea.length()-2);

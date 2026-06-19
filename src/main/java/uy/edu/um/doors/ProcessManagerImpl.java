@@ -170,10 +170,7 @@ public class ProcessManagerImpl implements ProcessManager {
             logger.logpPrepare(proceso);
 
         }
-
         System.out.println(" Se han preparado correctamente los procesos");
-
-
     }
 
     @Override
@@ -454,7 +451,6 @@ public class ProcessManagerImpl implements ProcessManager {
 
         boolean found=false;
 
-
         System.out.println("PROCESS STATUS");
 
         if (procesoEjecutado != null && procesoEjecutado.getUsuario().getUid().equals(uidS)) {
@@ -480,8 +476,6 @@ public class ProcessManagerImpl implements ProcessManager {
 
                     found=true;
                 }
-
-
             }
 
             while (!auxiliar.isEmpty()) {
@@ -527,8 +521,6 @@ public class ProcessManagerImpl implements ProcessManager {
         if(found==false){
             System.out.println("No hay procesos asosciados al usuario ingresado");
         }
-
-
     }
 
     @Override
@@ -556,11 +548,9 @@ public class ProcessManagerImpl implements ProcessManager {
                 //Si lo encuentra lo imprime y para de recorrer
                 if (procesoaux.getPid().equals(pidS)) {
                     System.out.println("Pid: " + procesoaux.getPid() + " Nombre: " + procesoaux.getNombre() + " Estado: PENDING " + "Usuario: " + procesoaux.getUsuario().getAlias() + " UID: " + procesoaux.getUsuario().getUid() + " Prioridad: " + procesoaux.getPrioridad());
-
                     procesoaux.printEventos();
 
                     found = true;
-
                     break;
                 }
             }
@@ -575,40 +565,37 @@ public class ProcessManagerImpl implements ProcessManager {
                 return;
             }
 
-            if (!procesosFinalizados.isEmpty()) {
+            //Creamos una estructura auxilirar para sacar los elementos del stack y ver si contiene el proceso especificado
+            MyStack<Proceso> auxiliar2 = new MyStackImpl<>();
 
-                //Creamos una estructura auxilirar para sacar los elementos del stack y ver si contiene el proceso especificado
-                MyStack<Proceso> auxiliar2 = new MyStackImpl<>();
+            while (!procesosFinalizados.isEmpty()) {
+                Proceso procesoaux2 = null;
 
-                while (!procesosFinalizados.isEmpty()) {
-                    Proceso procesoaux2 = null;
-
-                    try {
-                        procesoaux2 = procesosFinalizados.pop();
-                    } catch (EmptyStackException e) {
-                        System.out.println("Esta vacia."); // nunca va a tirar esto
-                    }
-
-                    auxiliar2.push(procesoaux2);
-
-                    //Si lo encuentra lo printea y para de recorrer
-                    if(procesoaux2.getPid().equals(pidS)){
-                        System.out.println("Pid: " + procesoaux2.getPid() + " Nombre: " + procesoaux2.getNombre() + " Estado: FINISHED "+procesoaux2.getFinalizacion() + " Usuario: " + procesoaux2.getUsuario().getAlias() + " UID: " + procesoaux2.getUsuario().getUid() + " Prioridad: " + procesoaux2.getPrioridad());
-                        procesoaux2.printEventos();
-
-                        found=true;
-
-                        break;
-                    }
+                try {
+                    procesoaux2 = procesosFinalizados.pop();
+                } catch (EmptyStackException e) {
+                    System.out.println("Esta vacia."); // nunca va a tirar esto
                 }
 
-                //Devuelve los elementos al stack de procesos Finalizados
-                while (!auxiliar2.isEmpty()) {
-                    try {
-                        procesosFinalizados.push(auxiliar2.pop());
-                    } catch (EmptyStackException e) {
-                        System.out.println("El stack esta vacio");
-                    }
+                auxiliar2.push(procesoaux2);
+
+                //Si lo encuentra lo printea y para de recorrer
+                if(procesoaux2.getPid().equals(pidS)){
+                    System.out.println("Pid: " + procesoaux2.getPid() + " Nombre: " + procesoaux2.getNombre() + " Estado: FINISHED "+procesoaux2.getFinalizacion() + " Usuario: " + procesoaux2.getUsuario().getAlias() + " UID: " + procesoaux2.getUsuario().getUid() + " Prioridad: " + procesoaux2.getPrioridad());
+                    procesoaux2.printEventos();
+
+                    found=true;
+
+                    break;
+                }
+            }
+
+            //Devuelve los elementos al stack de procesos Finalizados
+            while (!auxiliar2.isEmpty()) {
+                try {
+                    procesosFinalizados.push(auxiliar2.pop());
+                } catch (EmptyStackException e) {
+                    System.out.println("El stack esta vacio");
                 }
             }
 
