@@ -54,24 +54,20 @@ public class Proceso implements Comparable<Proceso> {
                 case "RAM":
                     cantidadRAM++;
                     break;
-
             }
         }
 
         int pesoUsuario=0;
-
         if(this.getUsuario().getTipo().equals("ADMIN")){
             pesoUsuario=32;
         }
-
         else{
             pesoUsuario=16;
         }
 
         double prioridadDouble = (((8*cantidadCPU + 2*cantidadRAM + 2*cantidadDISK)/cantidadEventos)+pesoUsuario*cantidadEventos);
 
-
-        return (int) prioridadDouble;
+        return (int) Math.round(prioridadDouble);
     }
 
     public void printEventos(){
@@ -81,8 +77,8 @@ public class Proceso implements Comparable<Proceso> {
 
             String linea = "EVENT: " + evento.getTipo() + " |" + "Instructions [";
 
-            for(int j=0; j<evento.getInstrucciones().size();j++)   {
-                linea = linea + evento.getInstrucciones().get(j) + ", ";
+            for(int j=0; j<evento.getInstrucciones().length;j++)   {
+                linea = linea + evento.getInstrucciones()[j] + ", ";
             }
 
             linea = linea.substring(0, linea.length()-2);

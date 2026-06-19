@@ -17,8 +17,7 @@ class ProcessManagerImplTest {
 
         Usuario lolo = new Usuario("1", "Lolo", "ADMIN");
 
-        MyList<String> instrucciones = new MyLinkedListImpl<>();
-        instrucciones.add("add");
+        String[] instrucciones = {"add","sub"};
         MyList<Evento> eventos = new MyLinkedListImpl<>();
         eventos.add(new Evento("CPU", instrucciones));
 
@@ -34,8 +33,7 @@ class ProcessManagerImplTest {
 
         Usuario lolo = new Usuario("1", "Lolo", "ADMIN");
 
-        MyList<String> instrucciones = new MyLinkedListImpl<>();
-        instrucciones.add("add");
+        String[] instrucciones = {"add"};
         MyList<Evento> eventos = new MyLinkedListImpl<>();
         eventos.add(new Evento("CPU", instrucciones));
         Proceso proceso = new Proceso("P1", "test.exe", 0, lolo, "NEW", eventos);
@@ -53,8 +51,7 @@ class ProcessManagerImplTest {
 
         Usuario lolo = new Usuario("1", "Lolo", "ADMIN");
 
-        MyList<String> instrucciones = new MyLinkedListImpl<>();
-        instrucciones.add("add");
+        String[] instrucciones = {"add"};
         MyList<Evento> eventos = new MyLinkedListImpl<>();
         eventos.add(new Evento("CPU", instrucciones));
         Proceso proceso = new Proceso("P1", "test.exe", 0, lolo, "NEW", eventos);
@@ -72,8 +69,7 @@ class ProcessManagerImplTest {
         ProcessManagerImpl processManager = new ProcessManagerImpl();
 
         Usuario lolo = new Usuario("1", "Lolo", "ADMIN");
-        MyList<String> instrucciones = new MyLinkedListImpl<>();
-        instrucciones.add("add");
+        String[] instrucciones = {"add"};
         MyList<Evento> eventos = new MyLinkedListImpl<>();
         eventos.add(new Evento("CPU", instrucciones));
         Proceso p = new Proceso("P1", "test.exe", 0, lolo, "NEW", eventos);

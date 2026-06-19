@@ -122,11 +122,7 @@ public class ProcessManagerImpl implements ProcessManager {
                         MyList<String> instrucciones = new MyLinkedListImpl<>();    // creo lista para guardar las instrucciones
                         String[] instruccionesArray = instruccionesString.split(", ");         // creo array de strings con las instrucciones (que separo por ', ')
 
-                        for (String instruccion : instruccionesArray) {     // guardo de a una las instrucciones en la lista instrucciones
-                            instrucciones.add(instruccion);
-                        }
-
-                        Evento nuevoEv = new Evento(tipoEv, instrucciones);         // creo el nuevo evento
+                        Evento nuevoEv = new Evento(tipoEv, instruccionesArray);         // creo el nuevo evento
                         eventos.add(nuevoEv);      // guardo el nuevo evento
                     }
                     Proceso nuevoPr = new Proceso(pid, pname, 0, usuarioP, "NEW", eventos);     // creo el proceso nuevo con prioridad = 0 porque la prioridad real se calcula luego en 'prepareProcess'

@@ -12,9 +12,7 @@ class ProcesoTest {
         Usuario admin = new Usuario("1", "Lolo", "ADMIN");
 
         MyList<Evento> eventos = new MyLinkedListImpl<>();
-        MyList<String> instrucciones = new MyLinkedListImpl<>();
-        instrucciones.add("add");
-        instrucciones.add("sub");
+        String[] instrucciones = {"add","sub"};
         eventos.add(new Evento("CPU", instrucciones));
 
         Proceso p = new Proceso("P1", "test.exe", 0, admin, "NEW", eventos);

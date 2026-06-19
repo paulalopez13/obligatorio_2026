@@ -4,10 +4,10 @@ import uy.edu.um.tad.list.MyList;
 
 public class Evento {
     private String tipo; //Puede ser CPU, RAM o DISK. misma consideracion q estado de proceso
-    private MyList<String> instrucciones;
+    private String[] instrucciones;
 
 
-    public Evento(String tipo, MyList<String> instrucciones) {
+    public Evento(String tipo, String[] instrucciones) {
         this.tipo = tipo;
         this.instrucciones = instrucciones;
     }
@@ -21,11 +21,11 @@ public class Evento {
         this.tipo = tipo;
     }
 
-    public MyList<String> getInstrucciones() {
+    public String[] getInstrucciones() {
         return instrucciones;
     }
 
-    public void setInstrucciones(MyList<String> instrucciones) {
+    public void setInstrucciones(String[] instrucciones) {
         this.instrucciones = instrucciones;
     }
 }
