@@ -461,6 +461,10 @@ public class ProcessManagerImpl implements ProcessManager {
             found=true;
         }
 
+        if(found==true){
+            return;
+        }
+
         if (!procesosPendientes.isEmpty()) {
             System.out.println("PENDING:");
 
